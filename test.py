@@ -4,9 +4,9 @@ from tkinter import ttk
 from tkinter import filedialog
 
 
-class PygameMusicPlayer:
+class MusicPlayer:
 	def __init__(self):
-		# 初始化 Pygame Mixer
+		pygame.init()
 		pygame.mixer.init()
 
 		# Tkinter 窗口初始化
@@ -31,19 +31,12 @@ class PygameMusicPlayer:
 		self.play_button = ttk.Button(self.window, text="Play", command=self.play_music)
 		self.play_button.grid(ipadx=12, ipady=2, pady=10)
 
-		# 暂停按钮
-		self.pause_button = ttk.Button(self.window, text="Pause", command=self.pause_music)
-		self.pause_button.grid(ipadx=12, ipady=2, pady=10)
-
-		# 停止按钮
-		self.stop_button = ttk.Button(self.window, text="Stop", command=self.stop_music)
-		self.stop_button.grid(ipadx=12, ipady=2, pady=10)
-
 		# 音量滑块
-		self.volume_slider = tk.Scale(self.window, from_=0, to=1, resolution=0.01, orient="horizontal", label="Volume",
-									  command=self.set_volume)
-		self.volume_slider.set(0.5)  # 默认音量
-		self.volume_slider.grid(pady=10)
+		self.volume_slider = ttk.Label(self.window, text="Volume", anchor="center")
+		self.volume_slider.grid()
+		self.volume_slider = ttk.Scale(self.window, from_=0, to=1, orient="horizontal", command=self.set_volume,
+									   cursor="hand2", value=0.5)
+		self.volume_slider.grid(ipadx=12, ipady=2)
 
 		# 加载音乐按钮
 		self.load_button = ttk.Button(self.window, text="Load Music", command=self.load_music)
@@ -64,31 +57,19 @@ class PygameMusicPlayer:
 		if self.current_file:
 			if not pygame.mixer.music.get_busy():
 				pygame.mixer.music.play()
-				print("Playing music...")
+				#print("Playing music...")
 			elif self.paused:
 				pygame.mixer.music.unpause()
 				self.paused = False
-				print("Resumed music!")
-
-	def pause_music(self):
-		"""暂停音乐"""
-		if pygame.mixer.music.get_busy():
-			pygame.mixer.music.pause()
-			self.paused = True
-			print("Music paused.")
-
-	def stop_music(self):
-		"""停止音乐"""
-		pygame.mixer.music.stop()
-		self.paused = False
-		print("Music stopped.")
+				#print("Resumed music!")
+			elif pygame.mixer.music.get_busy():
+				pygame.mixer.music.pause()
+				self.paused = True
+				# print("Music paused.")
 
 	def set_volume(self, volume):
 		"""设置音乐音量"""
 		pygame.mixer.music.set_volume(float(volume))
 		print(f"Volume set to: {volume}")
 
-
-# 创建并运行播放器
-if __name__ == "__main__":
-	PygameMusicPlayer()
+MusicPlayer().window.mainloop()
