@@ -4,7 +4,6 @@ from tkinter import filedialog
 from tkinter import messagebox
 import os
 import pygame
-from mkl import second
 
 
 class MusicPlayer:
@@ -12,12 +11,6 @@ class MusicPlayer:
 		self.window = tk.Tk()
 		self.window.title("Music Player")
 		self.window.geometry("750x400")
-
-		"""		设置背景图片
-		self.bg_image = tk.PhotoImage(file=os.path.join(os.getcwd(), "MusicPlayer/images", "bg_con.png"))
-		self.bg_label = ttk.Label(self.root, image=self.bg_image)
-		self.bg_label.place(relx=0, depend=- 0, relwidth=1, relheight=1) 
-		"""
 
 		win_style = ttk.Style()
 		win_style.theme_use('classic')
@@ -41,12 +34,6 @@ class MusicPlayer:
 		self.control_frame = ttk.Frame(self.window)
 		self.control_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 		self.control_frame.configure(border=1, relief="groove", borderwidth=2)
-
-		""" 控制框架的背景图像
-		self.bg_image3 = tk.PhotoImage(file=os.path.join(os.getcwd(), "MusicPlayer/images", "control_bg.png"))
-		self.bg_label3 = ttk.Label(self.control_frame, image=self.bg_image3)
-		self.bg_label3.place(relx=0, depend=- 0, relwidth=1, relheight=1)
-		"""
 
 		self.play_var = tk.StringVar()
 		self.play_var.set("Play")
@@ -95,7 +82,7 @@ class MusicPlayer:
 		if self.paused:
 			pygame.mixer.music.unpause()
 			self.paused = False
-			self.play_var.set("Paused")
+			self.play_var.set("Pause")
 		else:
 			pygame.mixer.music.pause()
 			self.paused = True
@@ -142,11 +129,17 @@ class MusicPlayer:
 				self.playlist.insert(tk.END, file_path)
 
 	def update_progressbar(self):
-		current_time = pygame.mixer.music.get_pos() / 1000
-		self.progress_bar["value"] = current_time
-		hours, minutes, seconds = divmod(current_time, 60)
-		self.elapsed_time.config(text="{:02}:{:02}:{:02}".format(hours, minutes, seconds))
-		self.window.after(1000, self.update_progressbar)
+		if pygame.mixer.music.get_busy():
+			current_time = pygame.mixer.music.get_pos() / 1000
+			self.progress_bar["value"] = current_time
+			minutes, seconds = divmod(current_time, 60)
+			hours, minutes = divmod(minutes, 60)
+			self.elapsed_time.config(text="{:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)))
+			self.window.after(1000, self.update_progressbar)
+		else:
+			self.progress_bar["value"] = 0
+			self.elapsed_time.config(text="00:00:00")
+
 
 a = MusicPlayer()
 a.window.mainloop()
