@@ -10,7 +10,7 @@ class MusicPlayer:
 	def __init__(self):
 		self.window = tk.Tk()
 		self.window.title("Music Player")
-		self.window.geometry("750x400")
+		self.window.geometry("400x600")
 
 		win_style = ttk.Style()
 		win_style.theme_use('classic')
@@ -71,9 +71,12 @@ class MusicPlayer:
 	def play_selected(self, event):
 		selected_song = self.playlist.get(self.playlist.curselection())
 		self.current_song = selected_song
+		print(f"Selected song: {self.current_song}")
 		pygame.mixer.music.load(self.current_song)
-		self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[0:0:40] + "...")
-		self.progress_bar["maximum"] = pygame.mixer.Sound(self.current_song).get_length()
+		self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[:40] + "...")
+		song_length = pygame.mixer.Sound(self.current_song).get_length()
+		print(f"Song length: {song_length}")
+		self.progress_bar["maximum"] = song_length
 		self.update_progressbar()
 		pygame.mixer.music.play()
 		self.play_var.set("Pause")
@@ -96,7 +99,7 @@ class MusicPlayer:
 				previous_song = self.playlist.get(previous_song_index)
 				self.current_song = previous_song
 				pygame.mixer.music.load(self.current_song)
-				self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[0:0:40] + "...")
+				self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[:40] + "...")
 				pygame.mixer.music.play()
 				self.play_var.set("Pause")
 			else:
@@ -112,7 +115,7 @@ class MusicPlayer:
 				next_song = self.playlist.get(next_song_index)
 				self.current_song = next_song
 				pygame.mixer.music.load(self.current_song)
-				self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[0:0:40] + "...")
+				self.status_var.set("Now Playing: " + os.path.basename(self.current_song)[:40] + "...")
 				pygame.mixer.music.play()
 				self.play_var.set("Pause")
 			else:
@@ -123,14 +126,15 @@ class MusicPlayer:
 		pygame.mixer.music.set_volume(volume)
 
 	def import_music(self):
-		file_paths = filedialog.askopenfilenames()
-		for file_path in file_paths:
-			if file_path not in self.playlist.get(0, tk.END):
-				self.playlist.insert(tk.END, file_path)
+		current_song = filedialog.askopenfilenames()
+		if self.current_song:
+			pygame.mixer.music.load(self.current_song)
+			print(f"Loaded: {self.current_song}")
 
 	def update_progressbar(self):
 		if pygame.mixer.music.get_busy():
 			current_time = pygame.mixer.music.get_pos() / 1000
+			print(f"Current time: {current_time}")
 			self.progress_bar["value"] = current_time
 			minutes, seconds = divmod(current_time, 60)
 			hours, minutes = divmod(minutes, 60)
@@ -141,5 +145,4 @@ class MusicPlayer:
 			self.elapsed_time.config(text="00:00:00")
 
 
-a = MusicPlayer()
-a.window.mainloop()
+MusicPlayer().window.mainloop()
